@@ -1,800 +1,726 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Kuku Cut Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuku Cut — Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+  .skeleton { animation: pulse 1.4s ease-in-out infinite; background: #e5e7eb; border-radius: 6px; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+
+  @keyframes toastIn { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .toast { animation: toastIn .25s ease-out; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-up { animation: fadeUp .3s ease-out; }
+
+  .nav-item.active { background: rgba(220,38,38,.15); color: #fff; border-left-color: #dc2626; }
+  .nav-item.active .nav-icon { color: #f87171; }
+
+  thead th { position: sticky; top: 0; z-index: 10; }
+</style>
+<base target="_blank">
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 text-gray-800">
 
-<body class="bg-gray-100">
+<!-- MOBILE SIDEBAR OVERLAY -->
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden" onclick="toggleSidebar(false)"></div>
 
-<div class="flex h-screen">
-
-    <!-- SIDEBAR -->
-    <div class="w-64 bg-gray-900 text-white flex flex-col p-5">
-        <h2 class="text-2xl font-bold mb-8 text-red-500">Kuku Cut</h2>
-
-        <button onclick="showSection('dashboard')" class="mb-4 text-left hover:text-red-400">Dashboard</button>
-        <button onclick="showSection('orders')" class="mb-4 text-left hover:text-red-400">Orders</button>
-        <button onclick="showSection('messages')" class="mb-4 text-left hover:text-red-400">Messages</button>
-
-        <button onclick="logout()" class="mt-auto bg-red-600 px-4 py-2 rounded hover:bg-red-700">
-            Logout
-        </button>
+<!-- SIDEBAR -->
+<aside id="sidebar" class="fixed lg:static z-40 inset-y-0 left-0 w-64 bg-gray-900 text-gray-300 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+  <div class="px-5 pt-6 pb-5 border-b border-gray-800">
+    <div class="flex items-center gap-2">
+      <span class="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center text-white font-bold text-lg">K</span>
+      <div>
+        <h1 class="text-white font-bold leading-tight">Kuku Cut</h1>
+        <p class="text-xs text-gray-500">Admin Panel</p>
+      </div>
     </div>
+  </div>
 
-    <!-- MAIN CONTENT -->
-    <div class="flex-1 p-6 overflow-y-auto">
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+    <button data-nav="dashboard" onclick="showSection('dashboard')" class="nav-item active w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium border-l-4 border-transparent hover:bg-gray-800 hover:text-white transition">
+      <i data-lucide="layout-dashboard" class="w-4 h-4 nav-icon"></i> Dashboard
+    </button>
+    <button data-nav="orders" onclick="showSection('orders')" class="nav-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium border-l-4 border-transparent hover:bg-gray-800 hover:text-white transition">
+      <i data-lucide="shopping-cart" class="w-4 h-4 nav-icon"></i> Orders
+      <span id="pendingBadge" class="ml-auto hidden text-xs bg-red-600 text-white font-bold px-2 py-0.5 rounded-full"></span>
+    </button>
+    <button data-nav="messages" onclick="showSection('messages')" class="nav-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium border-l-4 border-transparent hover:bg-gray-800 hover:text-white transition">
+      <i data-lucide="mail" class="w-4 h-4 nav-icon"></i> Messages
+      <span id="unreadBadge" class="ml-auto hidden text-xs bg-red-600 text-white font-bold px-2 py-0.5 rounded-full"></span>
+    </button>
+  </nav>
 
-        <!-- DASHBOARD -->
-        <div id="dashboardSection">
-            <h1 class="text-3xl font-bold mb-6">Dashboard</h1>
+  <div class="p-4 border-t border-gray-800">
+    <button onclick="logout()" class="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-red-600 text-sm font-medium px-4 py-2.5 rounded-lg transition">
+      <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+    </button>
+  </div>
+</aside>
 
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow">
-                    <h3 class="text-gray-500 text-sm">Total Revenue</h3>
-                    <p id="totalRevenue" class="text-2xl font-bold text-green-600">KSh 0</p>
-                </div>
+<!-- MAIN -->
+<div class="flex-1 flex flex-col min-h-screen lg:ml-0 ml-0">
 
-                <div class="bg-white p-6 rounded-xl shadow">
-                    <h3 class="text-gray-500 text-sm">Orders Today</h3>
-                    <p id="ordersToday" class="text-2xl font-bold text-blue-600">0</p>
-                </div>
+  <!-- TOP BAR -->
+  <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-gray-200 px-4 lg:px-8 py-3.5 flex items-center gap-4">
+    <button class="lg:hidden p-2 rounded-lg hover:bg-gray-100" onclick="toggleSidebar(true)">
+      <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
+    <div class="flex-1 min-w-0">
+      <h2 id="pageTitle" class="text-lg lg:text-xl font-bold text-gray-900 truncate">Dashboard</h2>
+      <p id="pageSubtitle" class="text-xs text-gray-500 hidden sm:block">Business overview &amp; analytics</p>
+    </div>
+    <span id="todayDate" class="hidden md:block text-sm text-gray-500"></span>
+    <button onclick="loadData()" title="Refresh data" class="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition">
+      <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+    </button>
+    <div class="flex items-center gap-2.5 pl-2 border-l border-gray-200">
+      <span class="w-9 h-9 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-sm">A</span>
+      <div class="hidden sm:block">
+        <p class="text-sm font-semibold text-gray-900 leading-tight">Admin</p>
+        <p class="text-xs text-gray-500">Kuku Cut</p>
+      </div>
+    </div>
+  </header>
 
-                <div class="bg-white p-6 rounded-xl shadow">
-                    <h3 class="text-gray-500 text-sm">Top Product</h3>
-                    <p id="topProduct" class="text-2xl font-bold text-red-600">None</p>
-                </div>
-            </div>
-        <div class="bg-white p-6 rounded-xl shadow mt-6">
-            <h3 class="text-lg font-bold mb-4">Sales Overview</h3>
-            <canvas id="salesChart"></canvas>
-         </div>
+  <main class="flex-1 p-4 lg:p-8 overflow-y-auto">
+
+    <!-- ============ DASHBOARD ============ -->
+    <section id="dashboardSection">
+      <!-- KPI CARDS -->
+      <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 fade-up">
+          <div class="flex items-center justify-between mb-3">
+            <span class="w-10 h-10 rounded-xl bg-green-100 text-green-600 flex items-center justify-center"><i data-lucide="banknote" class="w-5 h-5"></i></span>
+            <span id="revenueDelta" class="text-xs font-semibold text-gray-400"></span>
+          </div>
+          <p class="text-sm text-gray-500">Total Revenue</p>
+          <p id="kpiRevenue" class="text-2xl font-bold text-gray-900">KSh 0</p>
         </div>
 
-        <!-- ORDERS -->
-        <div id="ordersSection" class="hidden">
-            <h1 class="text-2xl font-bold mb-4">Orders</h1>
-
-            <div class="bg-white shadow rounded-xl overflow-x-auto">
-                <table class="w-full min-w-[1000px]">
-    <thead class="bg-red-600 text-white">
-    <tr>
-
-        <th class="p-3 text-left">
-            Order ID
-        </th>
-
-        <th class="p-3 text-left">
-            Date
-        </th>
-
-        <th class="p-3 text-left">
-            Products
-        </th>
-
-        <th class="p-3 text-left">
-            Total
-        </th>
-
-        <th class="p-3 text-left">
-            Status
-        </th>
-
-        <th class="p-3 text-left">
-            Action
-        </th>
-
-    </tr>
-     </thead>
-    <tbody id="ordersTable"></tbody>
-     </table>
-    </div>
-    </div>
-
-        <!-- MESSAGES -->
-        <div id="messagesSection" class="hidden">
-            <h1 class="text-2xl font-bold mb-4">Messages</h1>
-
-            <div class="bg-white rounded-xl shadow p-6">
-                <table class="w-full">
-                    <thead class="bg-gray-200">
-                        <tr>
-                            <th class="p-3">Name</th>
-                            <th class="p-3">Email</th>
-                            <th class="p-3">Phone</th>
-                            <th class="p-3">Message</th>
-                            <th class="p-3">Date</th>
-                            <th class="p-3">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="messages-table"></tbody>
-                </table>
-            </div>
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 fade-up">
+          <div class="flex items-center justify-between mb-3">
+            <span class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center"><i data-lucide="calendar-check" class="w-5 h-5"></i></span>
+            <span id="ordersDelta" class="text-xs font-semibold text-gray-400"></span>
+          </div>
+          <p class="text-sm text-gray-500">Orders Today</p>
+          <p id="kpiOrdersToday" class="text-2xl font-bold text-gray-900">0</p>
         </div>
 
-    </div>
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 fade-up">
+          <div class="flex items-center justify-between mb-3">
+            <span class="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center"><i data-lucide="clock" class="w-5 h-5"></i></span>
+          </div>
+          <p class="text-sm text-gray-500">Pending Orders</p>
+          <p id="kpiPending" class="text-2xl font-bold text-gray-900">0</p>
+        </div>
 
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 fade-up">
+          <div class="flex items-center justify-between mb-3">
+            <span class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center"><i data-lucide="trophy" class="w-5 h-5"></i></span>
+          </div>
+          <p class="text-sm text-gray-500">Top Product</p>
+          <p id="kpiTopProduct" class="text-lg font-bold text-gray-900 truncate">None</p>
+          <p id="kpiTopProductQty" class="text-xs text-gray-500"></p>
+        </div>
+      </div>
+
+      <!-- CHART -->
+      <div class="bg-white rounded-2xl border border-gray-200 p-5 lg:p-6 fade-up">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="font-bold text-gray-900">Sales Overview</h3>
+            <p class="text-xs text-gray-500">Daily revenue from all orders</p>
+          </div>
+          <span class="text-xs font-semibold bg-gray-100 text-gray-600 px-3 py-1 rounded-full">KSh</span>
+        </div>
+        <div class="h-72"><canvas id="salesChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ============ ORDERS ============ -->
+    <section id="ordersSection" class="hidden">
+      <!-- FILTER TABS + SEARCH -->
+      <div class="flex flex-col md:flex-row md:items-center gap-3 mb-4">
+        <div id="orderTabs" class="flex flex-wrap gap-2"></div>
+        <div class="md:ml-auto relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+          <input id="orderSearch" oninput="orderSearchValue(this.value)" placeholder="Search order ID or product…"
+                 class="w-full md:w-72 pl-9 pr-3 py-2 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent">
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="overflow-auto max-h-[70vh]">
+          <table class="w-full min-w-[860px] text-sm">
+            <thead>
+              <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+                <th class="text-left px-5 py-3 font-semibold">Order</th>
+                <th class="text-left px-5 py-3 font-semibold">Date</th>
+                <th class="text-left px-5 py-3 font-semibold">Products</th>
+                <th class="text-left px-5 py-3 font-semibold">Total</th>
+                <th class="text-left px-5 py-3 font-semibold">Status</th>
+                <th class="text-right px-5 py-3 font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MESSAGES ============ -->
+    <section id="messagesSection" class="hidden">
+      <div class="flex flex-wrap gap-2 mb-4" id="messageTabs"></div>
+
+      <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="overflow-auto max-h-[70vh]">
+          <table class="w-full min-w-[820px] text-sm">
+            <thead>
+              <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+                <th class="text-left px-5 py-3 font-semibold">Name</th>
+                <th class="text-left px-5 py-3 font-semibold">Contact</th>
+                <th class="text-left px-5 py-3 font-semibold">Message</th>
+                <th class="text-left px-5 py-3 font-semibold">Date</th>
+                <th class="text-left px-5 py-3 font-semibold">Status</th>
+                <th class="text-right px-5 py-3 font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="messagesBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
 </div>
 
+<!-- CONFIRM MODAL -->
+<div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+  <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 fade-up">
+    <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-4">
+      <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+    </div>
+    <h3 class="text-lg font-bold text-gray-900 mb-1">Are you sure?</h3>
+    <p id="confirmText" class="text-sm text-gray-500 mb-5"></p>
+    <div class="flex gap-3">
+      <button onclick="closeConfirm()" class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">Cancel</button>
+      <button id="confirmBtn" class="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-sm font-semibold text-white hover:bg-red-700 transition">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div id="toastBox" class="fixed bottom-4 right-4 z-50 space-y-2 w-[calc(100%-2rem)] max-w-sm"></div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-    loadOrders();
-    loadMessages();
-    loadAnalytics();
-    loadChart();
+/* ================= AUTH GUARD (runs before anything else) ================= */
+if (localStorage.getItem("isLoggedIn") !== "true") {
+  window.location.href = "login.html";
+}
+
+const API = 'http://localhost:3000';
+
+/* ================= STATE ================= */
+let allOrders = [];
+let allMessages = [];
+let activeSection = 'dashboard';
+let orderFilter = 'All';
+let orderQuery = '';
+let messageFilter = 'All';
+let salesChart = null;
+let confirmCallback = null;
+
+const STATUS_STYLES = {
+  Pending:    'bg-yellow-100 text-yellow-800',
+  Processing: 'bg-blue-100 text-blue-800',
+  Completed:  'bg-green-100 text-green-800'
+};
+const SECTION_META = {
+  dashboard: ['Dashboard', 'Business overview & analytics'],
+  orders:    ['Orders', 'Track, update and manage customer orders'],
+  messages:  ['Messages', 'Customer enquiries from the contact form']
+};
+
+/* ================= HELPERS ================= */
+const ksh = n => 'KSh ' + Number(n || 0).toLocaleString();
+const shortId = id => '#' + String(id).slice(-6).toUpperCase();
+
+function dayKey(o) {
+  if (o.createdAt) return new Date(o.createdAt).toLocaleDateString();
+  return String(o.date || '').split(',')[0];
+}
+function isToday(o) { return dayKey(o) === new Date().toLocaleDateString(); }
+function isYesterday(o) {
+  const d = new Date(); d.setDate(d.getDate() - 1);
+  return dayKey(o) === d.toLocaleDateString();
+}
+function sortNewest(a, b) {
+  const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+  const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+  return tb - ta;
+}
+
+async function fetchJSON(url, options = {}) {
+  const res = await fetch(url, options);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || 'Request failed');
+  return data;
+}
+
+function toast(message, type = 'success') {
+  const box = document.getElementById('toastBox');
+  const el = document.createElement('div');
+  el.className = 'toast flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-lg text-sm font-medium text-white ' +
+    (type === 'success' ? 'bg-gray-900' : 'bg-red-600');
+  el.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}" class="w-4 h-4 ${type === 'success' ? 'text-green-400' : 'text-white'}"></i><span>${message}</span>`;
+  box.appendChild(el);
+  lucide.createIcons();
+  setTimeout(() => el.remove(), 3200);
+}
+
+function openConfirm(text, onConfirm, btnLabel = 'Delete') {
+  document.getElementById('confirmText').textContent = text;
+  document.getElementById('confirmBtn').textContent = btnLabel;
+  confirmCallback = onConfirm;
+  const m = document.getElementById('confirmModal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+}
+function closeConfirm() {
+  confirmCallback = null;
+  const m = document.getElementById('confirmModal');
+  m.classList.add('hidden'); m.classList.remove('flex');
+}
+document.getElementById('confirmBtn').addEventListener('click', () => {
+  if (confirmCallback) confirmCallback();
+  closeConfirm();
 });
-    if (localStorage.getItem("isLoggedIn") !== "true") {
-      window.location.href = "login.html";
-     }
-function getStatusClass(status) {
 
-    switch (status) {
-
-        case 'Pending':
-            return 'bg-yellow-100 text-yellow-800';
-
-        case 'Processing':
-            return 'bg-blue-100 text-blue-800';
-
-        case 'Completed':
-            return 'bg-green-100 text-green-800';
-
-        default:
-            return 'bg-gray-100 text-gray-800';
-    }
+function emptyRow(colspan, icon, text) {
+  return `<tr><td colspan="${colspan}" class="px-5 py-14 text-center text-gray-400">
+    <i data-lucide="${icon}" class="w-10 h-10 mx-auto mb-3 text-gray-300"></i>
+    <p class="text-sm font-medium">${text}</p></td></tr>`;
 }
-async function loadOrders() {
+function skeletonRows(colspan, n = 5) {
+  return Array.from({ length: n }).map(() =>
+    `<tr class="border-b border-gray-100">
+       <td colspan="${colspan}" class="px-5 py-4"><div class="skeleton h-5 w-full"></div></td>
+     </tr>`).join('');
+}
 
-    const table = document.getElementById('ordersTable');
+/* ================= DATA LOADING ================= */
+async function loadData(silent = false) {
+  if (!silent) {
+    document.getElementById('ordersBody').innerHTML = skeletonRows(6);
+    document.getElementById('messagesBody').innerHTML = skeletonRows(6);
+  }
+  try {
+    const [orders, messages] = await Promise.all([
+      fetchJSON(`${API}/orders`),
+      fetchJSON(`${API}/messages`)
+    ]);
+    allOrders = orders;
+    allMessages = messages;
+    renderAll();
+    if (silent) toast('Data refreshed');
+  } catch (err) {
+    console.error('Load error:', err);
+    document.getElementById('ordersBody').innerHTML =
+      `<tr><td colspan="6" class="px-5 py-10 text-center text-red-600 text-sm font-medium">Could not load orders — is the server running on port 3000?</td></tr>`;
+    document.getElementById('messagesBody').innerHTML =
+      `<tr><td colspan="6" class="px-5 py-10 text-center text-red-600 text-sm font-medium">Could not load messages.</td></tr>`;
+    toast('Failed to load data', 'error');
+  }
+}
 
-    try {
+function renderAll() {
+  renderKPIs();
+  renderChart();
+  renderOrderTabs();
+  renderOrders();
+  renderBadges();
+  renderMessageTabs();
+  renderMessages();
+}
 
-        const response = await fetch('http://localhost:3000/orders');
+/* ================= KPIs ================= */
+function renderKPIs() {
+  const totalRevenue = allOrders.reduce((s, o) => s + (Number(o.total) || 0), 0);
+  const todayOrders  = allOrders.filter(isToday);
+  const ydayOrders   = allOrders.filter(isYesterday);
+  const pending      = allOrders.filter(o => o.status === 'Pending').length;
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch orders');
+  const todayRev   = todayOrders.reduce((s, o) => s + (Number(o.total) || 0), 0);
+  const ydayRev    = ydayOrders.reduce((s, o) => s + (Number(o.total) || 0), 0);
+  const revDelta   = ydayRev > 0 ? Math.round(((todayRev - ydayRev) / ydayRev) * 100) : null;
+  const ordDelta   = ydayOrders.length > 0 ? todayOrders.length - ydayOrders.length : null;
+
+  const counts = {};
+  allOrders.forEach(o => (o.items || []).forEach(i => {
+    counts[i.name] = (counts[i.name] || 0) + (Number(i.quantity) || 0);
+  }));
+  let top = { name: 'None', qty: 0 };
+  for (const name in counts) if (counts[name] > top.qty) top = { name, qty: counts[name] };
+
+  document.getElementById('kpiRevenue').textContent = ksh(totalRevenue);
+  document.getElementById('kpiOrdersToday').textContent = todayOrders.length;
+  document.getElementById('kpiPending').textContent = pending;
+  document.getElementById('kpiTopProduct').textContent = top.name;
+  document.getElementById('kpiTopProductQty').textContent = top.qty ? `${top.qty} units sold` : '';
+
+  const revEl = document.getElementById('revenueDelta');
+  revEl.innerHTML = revDelta === null
+    ? '<span class="text-gray-400">—</span>'
+    : `<span class="${revDelta >= 0 ? 'text-green-600' : 'text-red-600'}">${revDelta >= 0 ? '▲' : '▼'} ${Math.abs(revDelta)}%</span> <span class="text-gray-400 font-normal">vs yesterday</span>`;
+
+  const ordEl = document.getElementById('ordersDelta');
+  ordEl.innerHTML = ordDelta === null
+    ? '<span class="text-gray-400">—</span>'
+    : `<span class="${ordDelta >= 0 ? 'text-green-600' : 'text-red-600'}">${ordDelta >= 0 ? '▲' : '▼'} ${Math.abs(ordDelta)}</span> <span class="text-gray-400 font-normal">vs yesterday</span>`;
+}
+
+/* ================= CHART ================= */
+function renderChart() {
+  const daily = {};
+  allOrders.forEach(o => {
+    const key = dayKey(o);
+    if (!key) return;
+    daily[key] = (daily[key] || 0) + (Number(o.total) || 0);
+  });
+
+  const labels = Object.keys(daily).sort((a, b) => {
+    const da = new Date(a), db = new Date(b);
+    return (isNaN(da) || isNaN(db)) ? a.localeCompare(b) : da - db;
+  });
+  const data = labels.map(l => daily[l]);
+
+  const ctx = document.getElementById('salesChart').getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+  gradient.addColorStop(0, 'rgba(220,38,38,0.25)');
+  gradient.addColorStop(1, 'rgba(220,38,38,0.02)');
+
+  if (salesChart) salesChart.destroy();
+  salesChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Revenue',
+        data,
+        borderColor: '#dc2626',
+        backgroundColor: gradient,
+        fill: true,
+        borderWidth: 2.5,
+        tension: 0.35,
+        pointRadius: 4,
+        pointBackgroundColor: '#dc2626',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111827',
+          padding: 12,
+          cornerRadius: 10,
+          callbacks: { label: c => ' ' + ksh(c.parsed.y) }
         }
-
-        const orders = await response.json();
-
-        // No orders
-        if (orders.length === 0) {
-
-            table.innerHTML = `
-                <tr>
-                    <td colspan="6"
-                        class="p-6 text-center text-gray-500">
-                        No orders yet
-                    </td>
-                </tr>
-            `;
-
-            return;
-        }
-
-        table.innerHTML = orders.map((order, index) => {
-
-            // Create the list of products
-            const itemsHTML = order.items.map(item => {
-
-                const subtotal =
-                    (item.price || 0) * item.quantity;
-
-                return `
-                    <div class="mb-3 last:mb-0">
-
-                        <div class="font-semibold text-gray-900">
-                            ${item.name}
-                        </div>
-
-                        ${
-                            item.description
-                            ? `
-                            <div class="text-xs text-gray-500">
-                                ${item.description}
-                            </div>
-                            `
-                            : ''
-                        }
-
-                        <div class="text-sm text-gray-600 mt-1">
-                            KSh ${(item.price || 0).toLocaleString()}
-                            × ${item.quantity}
-                            =
-                            <span class="font-semibold">
-                                KSh ${subtotal.toLocaleString()}
-                            </span>
-                        </div>
-
-                    </div>
-                `;
-
-            }).join('');
-
-            return `
-
-                <tr class="border-b hover:bg-gray-50 align-top">
-
-                    <!-- ORDER ID -->
-                    <td class="p-4">
-
-                        <div class="font-semibold text-gray-800">
-                            #${order._id.slice(-6).toUpperCase()}
-                        </div>
-
-                        <div class="text-xs text-gray-400 mt-1">
-                            Order ${index + 1}
-                        </div>
-
-                    </td>
-
-
-                    <!-- DATE -->
-                    <td class="p-4">
-
-                        <div class="text-sm text-gray-700">
-                            ${order.date}
-                        </div>
-
-                    </td>
-
-
-                    <!-- ITEMS -->
-                    <td class="p-4 min-w-[280px]">
-
-                        ${itemsHTML}
-
-                    </td>
-
-
-                    <!-- TOTAL -->
-                    <td class="p-4">
-
-                        <div class="text-lg font-bold text-red-600">
-                            KSh ${order.total.toLocaleString()}
-                        </div>
-
-                    </td>
-
-
-    <!-- STATUS -->
-    <td class="p-4 min-w-[160px]">
-
-    <div class="relative inline-block">
-
-        <select
-            onchange="updateStatus('${order._id}', this.value)"
-            class="appearance-none pl-3 pr-8 py-2 rounded-full
-                   text-sm font-semibold border-0 cursor-pointer
-                   focus:outline-none focus:ring-2 focus:ring-red-400
-                   ${getStatusClass(order.status)}">
-
-            <option value="Pending"
-                ${order.status === 'Pending' ? 'selected' : ''}>
-                🟡 Pending
-            </option>
-
-            <option value="Processing"
-                ${order.status === 'Processing' ? 'selected' : ''}>
-                🔵 Processing
-            </option>
-
-            <option value="Completed"
-                ${order.status === 'Completed' ? 'selected' : ''}>
-                🟢 Completed
-            </option>
-
-        </select>
-
-        <!-- Dropdown arrow -->
-        <span class="absolute right-3 top-1/2
-                     -translate-y-1/2 pointer-events-none
-                     text-gray-600">
-            ▼
-        </span>
-
-    </div>
-
-</td>
-
-    <!-- ACTION -->
-<td class="p-4 min-w-[150px]">
-
-    <div class="flex flex-col items-start gap-2">
-
-        <span class="text-xs font-semibold text-gray-500 uppercase">
-            Order Actions
-        </span>
-
-        <button
-            onclick="deleteOrder('${order._id}')"
-            class="w-full bg-red-600 hover:bg-red-700
-                   text-white px-4 py-2
-                   rounded-lg text-sm font-semibold
-                   transition duration-200">
-
-            🗑 Delete
-
-        </button>
-
-    </div>
-
-</td>
-
-                </tr>
-
-            `;
-
-        }).join('');
-
-    } catch (error) {
-
-        console.error('Error loading orders:', error);
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="6"
-                    class="p-6 text-center text-red-600">
-                    Failed to load orders.
-                </td>
-            </tr>
-        `;
-    }
-}
-function showSection(section) {
-
-    document.getElementById('dashboardSection').classList.add('hidden');
-    document.getElementById('ordersSection').classList.add('hidden');
-    document.getElementById('messagesSection').classList.add('hidden');
-
-    if (section === 'dashboard') {
-        document.getElementById('dashboardSection').classList.remove('hidden');
-    }
-
-    if (section === 'orders') {
-        document.getElementById('ordersSection').classList.remove('hidden');
-        loadOrders();
-    }
-
-    if (section === 'messages') {
-        document.getElementById('messagesSection').classList.remove('hidden');
-        loadMessages();
-    }
-}
-async function deleteOrder(orderId) {
-
-    const confirmed = confirm(
-        "Are you sure you want to delete this order?"
-    );
-
-    if (!confirmed) {
-        return;
-    }
-
-    try {
-
-        console.log("Deleting order:", orderId);
-
-        const response = await fetch(
-            `http://localhost:3000/orders/${orderId}`,
-            {
-                method: "DELETE"
-            }
-        );
-
-        const result = await response.json();
-
-        console.log("Delete response:", result);
-
-        if (!response.ok) {
-            throw new Error(
-                result.message || "Failed to delete order"
-            );
-        }
-
-        // Reload orders from MongoDB
-        await loadOrders();
-
-        // Recalculate analytics from MongoDB
-        await loadAnalytics();
-
-        alert("Order deleted successfully.");
-
-    } catch (error) {
-
-        console.error("Error deleting order:", error);
-
-        alert("Failed to delete order: " + error.message);
-    }
-}
-function loadChart() {
-    const orders = JSON.parse(localStorage.getItem('kuku_orders')) || [];
-
-    let dailySales = {};
-
-    orders.forEach(order => {
-        let date = order.date;
-
-        if (!dailySales[date]) {
-            dailySales[date] = 0;
-        }
-
-        dailySales[date] += order.total;
-    });
-
-    const labels = Object.keys(dailySales);
-    const data = Object.values(dailySales);
-
-    const ctx = document.getElementById('salesChart').getContext('2d');
-
-if (window.salesChartInstance) {
-    window.salesChartInstance.destroy();
-}
-
-window.salesChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Revenue (KSh)',
-                data: data,
-                borderWidth: 2,
-                tension: 0.3
-            }]
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: '#f3f4f6' },
+          ticks: { callback: v => 'KSh ' + Number(v).toLocaleString() }
         },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: true
-                }
-            }
-        }
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+/* ================= ORDERS ================= */
+function renderOrderTabs() {
+  const counts = { All: allOrders.length, Pending: 0, Processing: 0, Completed: 0 };
+  allOrders.forEach(o => { if (counts[o.status] !== undefined) counts[o.status]++; });
+  document.getElementById('orderTabs').innerHTML = ['All', 'Pending', 'Processing', 'Completed'].map(s => `
+    <button onclick="setOrderFilter('${s}')"
+      class="px-4 py-2 rounded-xl text-sm font-semibold transition border
+      ${orderFilter === s
+        ? 'bg-red-600 text-white border-red-600'
+        : 'bg-white text-gray-600 border-gray-200 hover:border-red-400 hover:text-red-600'}">
+      ${s} <span class="ml-1 text-xs opacity-75">${counts[s]}</span>
+    </button>`).join('');
+}
+
+function setOrderFilter(s) { orderFilter = s; renderOrderTabs(); renderOrders(); }
+function orderSearchValue(v) { orderQuery = v.toLowerCase(); renderOrders(); }
+
+function renderOrders() {
+  const tbody = document.getElementById('ordersBody');
+  const list = allOrders.filter(o => {
+    const matchStatus = orderFilter === 'All' || o.status === orderFilter;
+    const matchQuery = !orderQuery ||
+      String(o._id).slice(-6).toLowerCase().includes(orderQuery) ||
+      (o.items || []).some(i => i.name.toLowerCase().includes(orderQuery));
+    return matchStatus && matchQuery;
+  }).sort(sortNewest);
+
+  if (!list.length) {
+    tbody.innerHTML = emptyRow(6, 'shopping-cart',
+      allOrders.length ? 'No orders match your filters.' : 'No orders yet — they will appear here once customers check out.');
+  } else {
+    tbody.innerHTML = list.map(o => {
+      const items = o.items || [];
+      const itemsSummary = items.slice(0, 2).map(i => i.name).join(', ') + (items.length > 2 ? ` +${items.length - 2} more` : '');
+      const style = STATUS_STYLES[o.status] || 'bg-gray-100 text-gray-800';
+      return `
+      <tr class="border-b border-gray-100 hover:bg-gray-50/70 transition">
+        <td class="px-5 py-4">
+          <div class="flex items-center gap-1.5">
+            <button onclick="toggleOrderDetail('${o._id}', this)" class="p-1 rounded hover:bg-gray-200 text-gray-400" title="View items">
+              <i data-lucide="chevron-down" class="w-4 h-4"></i>
+            </button>
+            <span class="font-bold text-gray-900">${shortId(o._id)}</span>
+          </div>
+        </td>
+        <td class="px-5 py-4 text-gray-600 whitespace-nowrap">${o.date || '—'}</td>
+        <td class="px-5 py-4 text-gray-600 max-w-[220px] truncate" title="${items.map(i => i.name).join(', ')}">
+          ${items.length} item${items.length !== 1 ? 's' : ''} · ${itemsSummary}
+        </td>
+        <td class="px-5 py-4 font-bold text-red-600 whitespace-nowrap">${ksh(o.total)}</td>
+        <td class="px-5 py-4">
+          <div class="relative inline-block">
+            <select onchange="updateStatus('${o._id}', this.value)"
+              class="appearance-none pl-3 pr-8 py-1.5 rounded-full text-xs font-bold border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-400 ${style}">
+              <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>🟡 Pending</option>
+              <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>🔵 Processing</option>
+              <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>🟢 Completed</option>
+            </select>
+            <span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-[10px]">▼</span>
+          </div>
+        </td>
+        <td class="px-5 py-4 text-right">
+          <button onclick="askDeleteOrder('${o._id}')" title="Delete order"
+            class="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </td>
+      </tr>
+      <tr id="detail-${o._id}" class="hidden bg-gray-50/80 border-b border-gray-100">
+        <td colspan="6" class="px-5 py-4">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Order items</p>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            ${items.map(i => `
+              <div class="bg-white rounded-xl border border-gray-200 p-3.5">
+                <p class="font-semibold text-gray-900 text-sm">${i.name}</p>
+                ${i.description ? `<p class="text-xs text-gray-500">${i.description}</p>` : ''}
+                <p class="text-xs text-gray-600 mt-1.5">
+                  ${ksh(i.price)} × ${i.quantity}
+                  = <span class="font-bold text-red-600">${ksh((i.price || 0) * i.quantity)}</span>
+                </p>
+              </div>`).join('') || '<p class="text-sm text-gray-400">No item details.</p>'}
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  lucide.createIcons();
+}
+
+function toggleOrderDetail(id, btn) {
+  const row = document.getElementById('detail-' + id);
+  const open = row.classList.toggle('hidden') === false;
+  btn.innerHTML = `<i data-lucide="${open ? 'chevron-up' : 'chevron-down'}" class="w-4 h-4"></i>`;
+  lucide.createIcons();
+}
+
+async function updateStatus(id, status) {
+  try {
+    await fetchJSON(`${API}/orders/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
     });
+    const order = allOrders.find(o => o._id === id);
+    if (order) order.status = status;
+    toast(`Order ${shortId(id)} marked as ${status}`);
+    renderAll();
+  } catch (err) {
+    console.error(err);
+    toast('Failed to update status', 'error');
+  }
 }
-async function loadAnalytics() {
 
+function askDeleteOrder(id) {
+  openConfirm(`Order ${shortId(id)} will be permanently deleted. This cannot be undone.`, async () => {
     try {
-
-        // Get orders from MongoDB through the API
-        const response = await fetch('http://localhost:3000/orders');
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch orders');
-        }
-
-        const orders = await response.json();
-
-        let totalRevenue = 0;
-        let todayOrders = 0;
-        let productCount = {};
-
-        // Today's date
-        const today = new Date().toLocaleDateString();
-
-        orders.forEach(order => {
-
-            // Calculate revenue
-            totalRevenue += Number(order.total) || 0;
-
-            // Count today's orders
-            if (order.date && order.date.includes(today)) {
-                todayOrders++;
-            }
-
-            // Count products
-            if (order.items && Array.isArray(order.items)) {
-
-                order.items.forEach(item => {
-
-                    if (!productCount[item.name]) {
-                        productCount[item.name] = 0;
-                    }
-
-                    productCount[item.name] += Number(item.quantity) || 0;
-
-                });
-            }
-
-        });
-
-        // Find the most ordered product
-        let topProduct = "None";
-        let max = 0;
-
-        for (let product in productCount) {
-
-            if (productCount[product] > max) {
-
-                max = productCount[product];
-                topProduct = product;
-
-            }
-
-        }
-
-        // Update dashboard
-        document.getElementById('totalRevenue').textContent =
-            `KSh ${totalRevenue.toLocaleString()}`;
-
-        document.getElementById('ordersToday').textContent =
-            todayOrders;
-
-        document.getElementById('topProduct').textContent =
-            topProduct;
-
-    } catch (error) {
-
-        console.error("Analytics error:", error);
-
-        document.getElementById('totalRevenue').textContent =
-            'KSh 0';
-
-        document.getElementById('ordersToday').textContent =
-            '0';
-
-        document.getElementById('topProduct').textContent =
-            'None';
+      await fetchJSON(`${API}/orders/${id}`, { method: 'DELETE' });
+      allOrders = allOrders.filter(o => o._id !== id);
+      toast(`Order ${shortId(id)} deleted`);
+      renderAll();
+    } catch (err) {
+      console.error(err);
+      toast('Failed to delete order', 'error');
     }
+  });
 }
-async function updateStatus(id, newStatus) {
 
+/* ================= MESSAGES ================= */
+function renderBadges() {
+  const pending = allOrders.filter(o => o.status === 'Pending').length;
+  const unread = allMessages.filter(m => m.status !== 'Read').length;
+
+  const pb = document.getElementById('pendingBadge');
+  pb.textContent = pending; pb.classList.toggle('hidden', pending === 0);
+
+  const ub = document.getElementById('unreadBadge');
+  ub.textContent = unread; ub.classList.toggle('hidden', unread === 0);
+}
+
+function renderMessageTabs() {
+  const unread = allMessages.filter(m => m.status !== 'Read').length;
+  const counts = { All: allMessages.length, Unread: unread, Read: allMessages.length - unread };
+  document.getElementById('messageTabs').innerHTML = ['All', 'Unread', 'Read'].map(s => `
+    <button onclick="setMessageFilter('${s}')"
+      class="px-4 py-2 rounded-xl text-sm font-semibold transition border
+      ${messageFilter === s
+        ? 'bg-gray-900 text-white border-gray-900'
+        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'}">
+      ${s} <span class="ml-1 text-xs opacity-75">${counts[s]}</span>
+    </button>`).join('');
+}
+
+function setMessageFilter(f) { messageFilter = f; renderMessageTabs(); renderMessages(); }
+
+function renderMessages() {
+  const tbody = document.getElementById('messagesBody');
+  const list = allMessages.filter(m => {
+    if (messageFilter === 'Unread') return m.status !== 'Read';
+    if (messageFilter === 'Read') return m.status === 'Read';
+    return true;
+  });
+
+  if (!list.length) {
+    tbody.innerHTML = emptyRow(6, 'inbox',
+      allMessages.length ? 'No messages in this view.' : 'No messages yet.');
+  } else {
+    tbody.innerHTML = list.map(m => {
+      const isRead = m.status === 'Read';
+      const date = m.createdAt ? new Date(m.createdAt).toLocaleString() : (m.date || '—');
+      return `
+      <tr class="border-b border-gray-100 hover:bg-gray-50/70 transition ${isRead ? '' : 'bg-red-50/40'}">
+        <td class="px-5 py-4">
+          <p class="font-semibold text-gray-900 ${isRead ? '' : 'font-bold'}">${m.firstName} ${m.lastName}</p>
+        </td>
+        <td class="px-5 py-4 text-gray-600">
+          <p>${m.email}</p>
+          ${m.phone ? `<p class="text-xs text-gray-400">${m.phone}</p>` : ''}
+        </td>
+        <td class="px-5 py-4 text-gray-600 max-w-[240px]">
+          <p class="truncate" title="${String(m.message).replace(/"/g, '&quot;')}">${m.message}</p>
+        </td>
+        <td class="px-5 py-4 text-gray-500 text-xs whitespace-nowrap">${date}</td>
+        <td class="px-5 py-4">
+          <span class="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${isRead ? 'bg-gray-100 text-gray-500' : 'bg-red-100 text-red-700'}">
+            <span class="w-1.5 h-1.5 rounded-full ${isRead ? 'bg-gray-400' : 'bg-red-500'}"></span>${isRead ? 'Read' : 'Unread'}
+          </span>
+        </td>
+        <td class="px-5 py-4">
+          <div class="flex justify-end gap-1.5">
+            <button onclick="toggleMessageStatus('${m._id}')" title="${isRead ? 'Mark as unread' : 'Mark as read'}"
+              class="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition">
+              <i data-lucide="${isRead ? 'mail-open' : 'mail'}" class="w-4 h-4"></i>
+            </button>
+            <button onclick="askDeleteMessage('${m._id}')" title="Delete message"
+              class="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  lucide.createIcons();
+}
+
+async function toggleMessageStatus(id) {
+  const msg = allMessages.find(m => m._id === id);
+  const newStatus = msg && msg.status === 'Read' ? 'Unread' : 'Read';
+  try {
+    await fetchJSON(`${API}/message/${id}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    if (msg) msg.status = newStatus;
+    renderBadges(); renderMessageTabs(); renderMessages();
+    toast(`Message marked as ${newStatus.toLowerCase()}`);
+  } catch (err) {
+    console.error(err);
+    toast('Failed to update message', 'error');
+  }
+}
+
+function askDeleteMessage(id) {
+  openConfirm('This message will be permanently deleted.', async () => {
     try {
-
-        const response = await fetch(
-            `http://localhost:3000/orders/${id}`,
-            {
-                method: 'PUT',
-
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-
-                body: JSON.stringify({
-                    status: newStatus
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        console.log("Status update response:", data);
-
-        if (!response.ok) {
-            throw new Error(
-                data.message || 'Failed to update order status'
-            );
-        }
-
-        console.log("Order status updated successfully");
-
-        // Reload orders from MongoDB
-        await loadOrders();
-
-        // Refresh analytics if available
-        if (typeof loadAnalytics === 'function') {
-            loadAnalytics();
-        }
-
-    } catch (error) {
-
-        console.error("Status update error:", error);
-
-        alert("Failed to update order status.");
+      await fetchJSON(`${API}/message/${id}`, { method: 'DELETE' });
+      allMessages = allMessages.filter(m => m._id !== id);
+      toast('Message deleted');
+      renderBadges(); renderMessageTabs(); renderMessages();
+    } catch (err) {
+      console.error(err);
+      toast('Failed to delete message', 'error');
     }
-}
-async function loadMessages() {
-
-    const table = document.getElementById('messages-table');
-
-    if (!table) {
-        console.error('messages-table was not found');
-        return;
-    }
-
-    try {
-
-        const response = await fetch('http://localhost:3000/messages');
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch messages');
-        }
-
-        const messages = await response.json();
-
-        console.log("Messages received:", messages);
-
-        if (messages.length === 0) {
-
-            table.innerHTML = `
-                <tr>
-                    <td colspan="6"
-                        class="p-6 text-center text-gray-500">
-                        No messages yet
-                    </td>
-                </tr>
-            `;
-
-            return;
-        }
-
-        table.innerHTML = messages.map(msg => `
-
-            <tr class="border-b hover:bg-gray-50">
-
-                <!-- NAME -->
-                <td class="p-3 font-medium text-gray-900">
-                    ${msg.firstName} ${msg.lastName}
-                </td>
-
-                <!-- EMAIL -->
-                <td class="p-3 text-gray-700">
-                    ${msg.email}
-                </td>
-
-                <!-- PHONE -->
-                <td class="p-3 text-gray-700">
-                    ${msg.phone || 'N/A'}
-                </td>
-
-                <!-- MESSAGE -->
-                <td class="p-3 text-gray-700">
-                    ${msg.message}
-                </td>
-
-                <!-- DATE -->
-                <td class="p-3 text-sm text-gray-500">
-                    ${
-                        msg.createdAt
-                            ? new Date(msg.createdAt).toLocaleString()
-                            : (msg.date || 'N/A')
-                    }
-                </td>
-
-                <!-- ACTION -->
-                <td class="p-3">
-
-                    <div class="flex flex-col gap-2">
-
-                        <button
-                            onclick="toggleMessageStatus('${msg._id}', '${msg.status || 'Unread'}')"
-                            class="px-3 py-2 rounded-lg text-sm font-semibold
-                            ${
-                                msg.status === 'Read'
-                                    ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                                    : 'bg-green-100 text-green-700 hover:bg-green-200'
-                            }">
-
-                            ${
-                                msg.status === 'Read'
-                                    ? 'Mark Unread'
-                                    : 'Mark Read'
-                            }
-
-                        </button>
-
-                        <button
-                            onclick="deleteMessage('${msg._id}')"
-                            class="bg-red-600 hover:bg-red-700
-                                   text-white px-3 py-2 rounded-lg
-                                   text-sm font-semibold">
-
-                            Delete
-
-                        </button>
-
-                    </div>
-
-                </td>
-
-            </tr>
-
-        `).join('');
-
-    } catch (error) {
-
-        console.error('Error loading messages:', error);
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="6"
-                    class="p-6 text-center text-red-600">
-                    Failed to load messages.
-                </td>
-            </tr>
-        `;
-    }
-}
-async function toggleMessageStatus(id, currentStatus) {
-
-    const newStatus =
-        currentStatus === 'Read'
-            ? 'Unread'
-            : 'Read';
-
-    try {
-
-        const response = await fetch(
-            `http://localhost:3000/message/${id}/status`,
-            {
-                method: 'PUT',
-
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-
-                body: JSON.stringify({
-                    status: newStatus
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                data.message || 'Failed to update message status'
-            );
-        }
-
-        // Refresh messages
-        loadMessages();
-
-    } catch (error) {
-
-        console.error('Status update error:', error);
-
-        alert('Failed to update message status.');
-    }
+  });
 }
 
-async function deleteMessage(id) {
-
-    const confirmed = confirm(
-        'Are you sure you want to delete this message?'
-    );
-
-    if (!confirmed) {
-        return;
-    }
-
-    try {
-
-        const response = await fetch(
-            `http://localhost:3000/message/${id}`,
-            {
-                method: 'DELETE'
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                data.message || 'Failed to delete message'
-            );
-        }
-
-        // Refresh the table
-        loadMessages();
-
-    } catch (error) {
-
-        console.error('Delete message error:', error);
-
-        alert('Failed to delete message.');
-    }
+/* ================= NAVIGATION ================= */
+function showSection(section) {
+  activeSection = section;
+  ['dashboard', 'orders', 'messages'].forEach(s =>
+    document.getElementById(s + 'Section').classList.toggle('hidden', s !== section));
+  document.querySelectorAll('.nav-item').forEach(b =>
+    b.classList.toggle('active', b.dataset.nav === section));
+  document.getElementById('pageTitle').textContent = SECTION_META[section][0];
+  document.getElementById('pageSubtitle').textContent = SECTION_META[section][1];
+  toggleSidebar(false);
+  lucide.createIcons();
 }
+
+function toggleSidebar(open) {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  sb.classList.toggle('-translate-x-full', !open);
+  ov.classList.toggle('hidden', !open);
+}
+
 function logout() {
-    localStorage.removeItem("isLoggedIn");
-    window.location.href = "login.html";
+  openConfirm('You will be signed out of the admin panel.', () => {
+    localStorage.removeItem('isLoggedIn');
+    window.location.href = 'login.html';
+  }, 'Logout');
 }
 
-loadMessages();
-loadOrders();
+/* ================= INIT ================= */
+document.getElementById('todayDate').textContent =
+  new Date().toLocaleDateString('en-KE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+showSection('dashboard');
+loadData();
 </script>
 
 </body>
