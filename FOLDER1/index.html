@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Kuku Cut provides fresh chicken, beef, pork and premium meat cuts in Nairobi with fast delivery and fair prices.">
+
+    <meta name="keywords" content="fresh chicken Nairobi, butcher shop Nairobi, chicken delivery Kenya, Kuku Cut meat shop">
+
+    <meta name="author" content="Kuku Cut">
+    <title>Kuku Cut - Premium Fresh Chicken & Meat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .brand-font { font-family: 'Playfair Display', serif; }
+        .hero-gradient { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); }
+        .meat-pattern { background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0); background-size: 20px 20px; }
+        .product-card { transition: all 0.3s ease; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .cart-sidebar { transform: translateX(100%); transition: transform 0.3s ease-in-out; }
+        .cart-sidebar.open { transform: translateX(0); }
+        .sticky-nav { backdrop-filter: blur(10px); background-color: rgba(255, 255, 255, 0.95); }
+    </style> 
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 sticky-nav border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+                        <i data-lucide="drumstick" class="h-8 w-8 text-red-600"></i>
+                        <span class="brand-font text-2xl font-bold text-red-800">Kuku Cut</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="text-gray-700 hover:text-red-600 font-medium transition">Home</a>
+                    <a href="#products" class="text-gray-700 hover:text-red-600 font-medium transition">Products</a>
+                    <a href="#about" class="text-gray-700 hover:text-red-600 font-medium transition">Our Story</a>
+                    <a href="#contact" class="text-gray-700 hover:text-red-600 font-medium transition">Contact</a>
+                    <button onclick="toggleCart()" class="relative p-2 text-gray-700 hover:text-red-600 transition">
+                        <i data-lucide="shopping-cart" class="h-6 w-6"></i>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                </div>
+                <div class="md:hidden flex items-center gap-4">
+                    <button onclick="toggleCart()" class="relative p-2 text-gray-700">
+                        <i data-lucide="shopping-cart" class="h-6 w-6"></i>
+                        <span id="cart-count-mobile" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    <button onclick="toggleMobileMenu()" class="p-2 text-gray-700">
+                        <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#home" class="block px-3 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-md">Home</a>
+                <a href="#products" class="block px-3 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-md">Products</a>
+                <a href="#about" class="block px-3 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-md">Our Story</a>
+                <a href="#contact" class="block px-3 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-md">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-gradient meat-pattern pt-24 pb-16 md:pt-32 md:pb-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-white">
+                    <div class="inline-flex items-center gap-2 bg-black/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                                            <i data-lucide="sparkles" class="h-4 w-4" style="color: #FFD600;"></i>
+                                            <span class="text-sm font-medium" style="color: #c00707;">Fresh from Kenya's Best Farms</span>
+                    </div>
+                                        <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight" style="color: #7e0404; text-shadow: 2px 2px 8px #000;">
+                                            Premium Fresh Chicken & Meat Delivered to Your Door
+                                        </h1>
+                                        <p class="text-lg md:text-xl mb-8 max-w-lg" style="color: #7e0404; text-shadow: 1px 1px 6px #000;">
+                                            Trusted by Kenyan families, restaurants, and businesses. Fresh, hygienically handled, and fairly priced meat products.
+                                        </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#products" class="inline-flex items-center justify-center px-8 py-4 bg-white text-red-700 font-semibold rounded-lg hover:bg-gray-100 transition shadow-lg">
+                            Shop Now
+                            <i data-lucide="arrow-right" class="ml-2 h-5 w-5"></i>
+                        </a>
+                        <a href="https://wa.me/254713763653"
+                          target="_blank"
+                          class="inline-flex items-center justify-center px-8 py-4 border-2 border-red-500 text-red-500 font-semibold rounded-lg hover:bg-red-500 hover:text-white transition">
+
+                          <i data-lucide="message-circle" class="mr-2 h-5 w-5"></i>
+                            Order via WhatsApp
+                          </a>
+                    </div>
+                    <div class="mt-8 flex items-center gap-6 text-sm text-red-600">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="check-circle" class="h-5 w-5"></i>
+                            <span>Same Day Delivery</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="check-circle" class="h-5 w-5"></i>
+                            <span>Farm Fresh</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="check-circle" class="h-5 w-5"></i>
+                            <span>Hygienic Processing</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+                        <img src="https://static.photos/food/640x360/123" alt="Fresh Chicken Products" class="w-full h-auto object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                    </div>
+                    <div class="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-xl hidden md:block">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-red-100 p-3 rounded-full">
+                                <i data-lucide="award" class="h-6 w-6 text-red-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-900">Trusted Quality</p>
+                                <p class="text-sm text-gray-600">Since 2010</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="text-center p-6 rounded-xl bg-gray-50 hover:bg-red-50 transition">
+                    <div class="bg-red-100 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="truck" class="h-7 w-7 text-red-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-1">Fast Delivery</h3>
+                    <p class="text-sm text-gray-600">Nairobi & Surroundings</p>
+                </div>
+                <div class="text-center p-6 rounded-xl bg-gray-50 hover:bg-red-50 transition">
+                    <div class="bg-red-100 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="shield-check" class="h-7 w-7 text-red-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-1">Certified Safe</h3>
+                    <p class="text-sm text-gray-600">Health Standards</p>
+                </div>
+                <div class="text-center p-6 rounded-xl bg-gray-50 hover:bg-red-50 transition">
+                    <div class="bg-red-100 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="refresh-cw" class="h-7 w-7 text-red-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-1">Fresh Daily</h3>
+                    <p class="text-sm text-gray-600">Never Frozen</p>
+                </div>
+                <div class="text-center p-6 rounded-xl bg-gray-50 hover:bg-red-50 transition">
+                    <div class="bg-red-100 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="banknote" class="h-7 w-7 text-red-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-1">Fair Prices</h3>
+                    <p class="text-sm text-gray-600">Best Value</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <span class="text-red-600 font-semibold tracking-wide uppercase text-sm">Our Products</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">Premium Quality Meat & Poultry</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">All our products are sourced from trusted Kenyan farms, processed under strict hygienic conditions, and delivered fresh to maintain quality and nutrition.</p>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="flex flex-wrap justify-center gap-2 mb-10">
+                <button onclick="filterProducts('all')" class="category-btn active px-6 py-2 rounded-full font-medium transition bg-red-600 text-white" data-category="all">All Products</button>
+                <button onclick="filterProducts('chicken')" class="category-btn px-6 py-2 rounded-full font-medium transition bg-white text-gray-700 hover:bg-red-50" data-category="chicken">Chicken</button>
+                <button onclick="filterProducts('meat')" class="category-btn px-6 py-2 rounded-full font-medium transition bg-white text-gray-700 hover:bg-red-50" data-category="meat">Meat & Sausages</button>
+                <button onclick="filterProducts('premium')" class="category-btn px-6 py-2 rounded-full font-medium transition bg-white text-gray-700 hover:bg-red-50" data-category="premium">Premium Cuts</button>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Products will be injected here by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                <div class="order-2 md:order-1">
+                    <img src="https://static.photos/workspace/640x360/456" alt="Our Story" class="rounded-2xl shadow-lg w-full">
+                </div>
+                <div class="order-1 md:order-2">
+                    <span class="text-red-600 font-semibold tracking-wide uppercase text-sm">Our Story</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-6">Bringing Kenyan Families Together Through Quality Food</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Our journey began with a simple idea: to provide Kenyan families, restaurants, and businesses with fresh, high-quality chicken they can trust. Growing up in Kenya, we saw how important good food is in bringing people together.
+                    </p>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Chicken is at the heart of many of our meals, from family dinners to celebrations and street food favourites. But we also noticed that many customers struggled to find consistently fresh, hygienically handled, and fairly priced chicken products.
+                    </p>
+                    <div class="flex items-center gap-4">
+                        <div class="bg-red-100 p-3 rounded-full">
+                            <i data-lucide="phone" class="h-6 w-6 text-red-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Call us to order</p>
+                            <p class="font-bold text-gray-900 text-lg">Till: 9582347</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vision & Mission -->
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-red-50 p-8 rounded-2xl border border-red-100">
+                    <div class="bg-white w-12 h-12 rounded-lg flex items-center justify-center mb-4 shadow-sm">
+                        <i data-lucide="eye" class="h-6 w-6 text-red-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Our Vision</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        To be the leading and trusted supplier of high-quality chicken meat known for freshness, safety, and excellence in the poultry industry across Kenya and East Africa.
+                    </p>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-2xl border border-gray-200">
+                    <div class="bg-white w-12 h-12 rounded-lg flex items-center justify-center mb-4 shadow-sm">
+                        <i data-lucide="target" class="h-6 w-6 text-red-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Our Mission</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        To provide safe, fresh, and nutritious chicken meat through responsible sourcing, hygienic processing, and efficient distribution while ensuring complete customer satisfaction at fair prices.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="py-16 bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Why Choose Kuku Cut?</h2>
+                <p class="text-gray-400">We go the extra mile to ensure you get the best</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center p-6">
+                    <div class="bg-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="leaf" class="h-8 w-8 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Farm to Table Freshness</h3>
+                    <p class="text-gray-400">Direct sourcing from local Kenyan farms ensures maximum freshness and supports local agriculture.</p>
+                </div>
+                <div class="text-center p-6">
+                    <div class="bg-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="thermometer" class="h-8 w-8 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Hygienic Processing</h3>
+                    <p class="text-gray-400">State-of-the-art facilities meeting all health standards with cold chain maintenance throughout.</p>
+                </div>
+                <div class="text-center p-6">
+                    <div class="bg-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="heart-handshake" class="h-8 w-8 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Community Focus</h3>
+                    <p class="text-gray-400">Proudly Kenyan, we understand local tastes and prioritize customer relationships.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <span class="text-red-600 font-semibold tracking-wide uppercase text-sm">Contact Us</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2">Visit Our Store or Order Online</h2>
+            </div>
+            <div class="grid md:grid-cols-2 gap-12">
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-red-100 p-3 rounded-lg">
+                            <i data-lucide="map-pin" class="h-6 w-6 text-red-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-1">Physical Store</h3>
+                            <p class="text-gray-600">
+                             Visit our butcher shop for fresh, hygienic and quality meat cuts
+                             </p>
+
+                             <p class="text-gray-600 mt-1">
+                              Location: Nairobi, Kenya
+                             </p>
+
+                             <p class="text-sm text-gray-500 mt-1">
+                              Open Daily: 7:00 AM - 7:00 PM
+                             </p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="bg-red-100 p-3 rounded-lg">
+                            <i data-lucide="phone-call" class="h-6 w-6 text-red-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-1">Contact & Orders</h3>
+
+<p class="text-gray-600">
+    Phone: <span class="font-semibold text-gray-900">0712345678</span>
+</p>
+
+<p class="text-gray-600">
+    WhatsApp: <span class="font-semibold text-green-600">0712345678</span>
+</p>
+
+<p class="text-gray-600">
+    M-Pesa Till: <span class="font-bold text-red-600">9582347</span>
+</p>
+
+<p class="text-sm text-gray-500 mt-1">
+    Call or WhatsApp us for quick orders and inquiries
+</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="bg-red-100 p-3 rounded-lg">
+                            <i data-lucide="truck" class="h-6 w-6 text-red-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-1">Delivery</h3>
+                            <p class="text-gray-600">
+                              Same-day delivery available across Nairobi
+                             </p>
+
+                            <p class="text-gray-600 text-sm mt-1">
+                              Fast, reliable and hygienic delivery service
+                              </p>
+
+                            <p class="text-sm text-gray-500 mt-1">
+                             Minimum order may apply
+                             </p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 pt-4">
+                       <a href="https://wa.me/254712345678" target="_blank"
+                         class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition flex items-center gap-2">
+                            <i data-lucide="message-circle" class="h-5 w-5"></i>
+                            WhatsApp Order
+                        </a>
+                        <button onclick="toggleCart()" class="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition flex items-center gap-2">
+                            <i data-lucide="shopping-cart" class="h-5 w-5"></i>
+                            View Cart
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-gray-100 p-8 rounded-2xl">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6">Send us a Message</h3>
+                    <form class="space-y-4" onsubmit="handleMessage(event)">
+                        <div class="grid grid-cols-2 gap-4">
+                           <input
+                           id="firstName"
+                            type="text"
+                            placeholder="First Name"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition"
+                            required>
+                            <input
+                           id="lastName"
+                                type="text"
+                             placeholder="Last Name"
+                             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition"
+                               required>
+                        </div>
+                        <input id="email" type="email" placeholder="Email Address" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition" required>
+                        <input id="phone" type="tel" placeholder="Phone Number" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition">
+                        <textarea id="message" placeholder="Your Message" rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition" required></textarea>
+                        <button type="submit" class="w-full bg-red-600 text-white font-semibold py-3 rounded-lg hover:bg-red-700 transition">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div class="col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i data-lucide="drumstick" class="h-6 w-6 text-red-500"></i>
+                        <span class="brand-font text-xl font-bold text-white">Kuku Cut</span>
+                    </div>
+                    <p class="text-gray-400 mb-4 max-w-sm">Your trusted partner for fresh, hygienically processed chicken and meat products in Kenya. Quality you can taste, service you can trust.</p>
+                    <div class="flex gap-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i data-lucide="facebook" class="h-5 w-5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i data-lucide="instagram" class="h-5 w-5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i data-lucide="twitter" class="h-5 w-5"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="hover:text-red-400 transition">Home</a></li>
+                        <li><a href="#products" class="hover:text-red-400 transition">Products</a></li>
+                        <li><a href="#about" class="hover:text-red-400 transition">About Us</a></li>
+                        <li><a href="#contact" class="hover:text-red-400 transition">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Products</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-red-400 transition">Fresh Chicken</a></li>
+                        <li><a href="#" class="hover:text-red-400 transition">Sausages</a></li>
+                        <li><a href="#" class="hover:text-red-400 transition">Beef & Pork</a></li>
+                        <li><a href="#" class="hover:text-red-400 transition">Premium Cuts</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm">&copy; 2024 Kuku Cut. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/50 z-50 hidden transition-opacity"></div>
+    <div id="cart-sidebar" class="cart-sidebar fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-2xl z-50 flex flex-col">
+        <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-red-50">
+            <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i data-lucide="shopping-cart" class="h-5 w-5 text-red-600"></i>
+                Your Cart
+            </h2>
+            <button onclick="toggleCart()" class="p-2 hover:bg-red-100 rounded-full transition">
+                <i data-lucide="x" class="h-6 w-6 text-gray-600"></i>
+            </button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4">
+            <div class="text-center text-gray-500 mt-8">
+                <i data-lucide="shopping-bag" class="h-12 w-12 mx-auto mb-3 text-gray-300"></i>
+                <p>Your cart is empty</p>
+                <button onclick="toggleCart(); window.location.href='#products'" class="mt-4 text-red-600 font-medium hover:underline">Start Shopping</button>
+            </div>
+        </div>
+        <div class="border-t border-gray-200 p-6 bg-gray-50">
+            <div class="flex justify-between mb-4 text-lg font-bold text-gray-900">
+                <span>Total:</span>
+                <span id="cart-total">KSh 0</span>
+            </div>
+            <button onclick="checkout()" class="w-full bg-red-600 text-white font-semibold py-3 rounded-lg hover:bg-red-700 transition flex items-center justify-center gap-2">
+                <i data-lucide="whatsapp" class="h-5 w-5"></i>
+                Order via WhatsApp
+            </button>
+            <button onclick="clearCart()" class="w-full mt-3 border border-red-600 text-red-600 py-2 rounded-lg hover:bg-red-50 transition">
+              Clear Cart
+             </button>
+            <p class="text-xs text-gray-500 mt-3 text-center">Clicking above will open WhatsApp with your order details</p>
+        </div>
+    </div>
+    
+
+   <script src="script.js"></script>
+
+<script>
+    lucide.createIcons();
+</script>
+
+<a href="https://wa.me/254713763653" target="_blank"
+class="fixed bottom-6 left-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition z-50">
+    
+    <i data-lucide="message-circle" class="h-6 w-6"></i>
+
+</a>    
+</body>
+</html>

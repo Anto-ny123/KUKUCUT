@@ -1,0 +1,120 @@
+/* Custom animations and utilities */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Custom scrollbar for cart */
+#cart-items::-webkit-scrollbar {
+    width: 6px;
+}
+
+#cart-items::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#cart-items::-webkit-scrollbar-thumb {
+    background: #dc2626;
+    border-radius: 3px;
+}
+
+/* Product image hover effect */
+.product-card img {
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover img {
+    transform: scale(1.05);
+}
+
+/* Mobile menu animation */
+#mobile-menu {
+    transition: all 0.3s ease;
+}
+
+/* Button press effect */
+button:active {
+    transform: scale(0.98);
+}
+
+/* Focus styles for accessibility */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 2px solid #dc2626;
+    outline-offset: 2px;
+}
+
+/* Selection color */
+::selection {
+    background-color: #fecaca;
+    color: #991b1b;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Loading state for images */
+img {
+    background-color: #f3f4f6;
+}
+
+/* Price tag animation */
+.product-card .absolute {
+    transition: transform 0.2s ease;
+}
+
+.product-card:hover .absolute {
+    transform: scale(1.05);
+}
+
+/* Category button transitions */
+.category-btn {
+    transition: all 0.2s ease;
+}
+
+/* Hero text shadow for better readability */
+.hero-gradient h1 {
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Card lift effect */
+.product-card {
+    will-change: transform;
+}
+
+/* Prevent text selection on buttons */
+button {
+    user-select: none;
+}
+
+/* Custom input styles */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Ensure images don't break layout */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Print styles */
+@media print {
+    .cart-sidebar, nav, .fixed {
+        display: none !important;
+    }
+}
+button {
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+}
